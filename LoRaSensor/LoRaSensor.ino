@@ -14,6 +14,10 @@
 #define DI0     26
 
 int counter = 0;
+byte msgCount = 0;            // count of outgoing messages
+byte localAddress = 0xAB;     // address of this device
+byte destination = 0xFF;      
+String outgoing="";
 
 void setup() {
   Serial.begin(115200);
@@ -32,11 +36,16 @@ void setup() {
 void loop() {
   Serial.print("Sending packet: ");
   Serial.println(counter);
-
+   outgoing="0000000000000000";
   // send packet
   LoRa.beginPacket();
-  LoRa.print("hello ");
-  LoRa.print(counter);
+  LoRa.write(destination);              // add destination address
+  LoRa.write(localAddress);             // add sender address
+  LoRa.write(counter);                 // add message ID
+  LoRa.write(outgoing.length());        // add payload length
+  LoRa.print(outgoing);          
+  //LoRa.print("hello ");
+  //LoRa.print(counter);
   LoRa.endPacket();
 
   counter++;

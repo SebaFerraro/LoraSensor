@@ -12,6 +12,12 @@
 #define SS      5
 #define RST     14
 #define DI0     26
+int recipient; 
+byte sender;
+byte incomingMsgId;
+byte incomingLength;
+
+String incoming ;
 
 void setup() {
   Serial.begin(115200);
@@ -32,20 +38,33 @@ void loop() {
   // try to parse packet
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
+   recipient = LoRa.read();          // recipient address
+   sender = LoRa.read();            // sender address
+   incomingMsgId = LoRa.read();     // incoming msg ID
+   incomingLength = LoRa.read();    // incoming msg length
+   incoming = "";
     // received a packet
     Serial.print("Received packet '");
 
     // read packet
     while (LoRa.available()) {
-      Serial.print((char)LoRa.read());
-    }
+      incoming += (char)LoRa.read();
+     }
 
     // print RSSI of packet
-    Serial.print("' with RSSI ");
-    Serial.println(LoRa.packetRssi());
+  Serial.println("Received from: 0x" + String(sender, HEX));
+  Serial.println("Sent to: 0x" + String(recipient, HEX));
+  Serial.println("Message ID: " + String(incomingMsgId));
+  Serial.println("Message length: " + String(incomingLength));
+  Serial.println("Message: " + incoming);
+  Serial.println("RSSI: " + String(LoRa.packetRssi()));
+  Serial.println("Snr: " + String(LoRa.packetSnr()));
+  Serial.println();
+  
     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);                       // wait for a second
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(100);                      
+   
+   
   }
-}
+   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  }
+  
